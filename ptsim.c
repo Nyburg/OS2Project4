@@ -48,8 +48,6 @@ unsigned char get_page_table(int proc_num)
 //
 void new_process(int proc_num, int page_count)
 {
-    (void)page_count; // remove after implementation
-
     int page_table = -1;
 
     for (int i = 0; i < PAGE_COUNT; i++) {
@@ -69,6 +67,28 @@ void new_process(int proc_num, int page_count)
 
     int ptp_addr = get_address(0, PTP_OFFSET + proc_num);
     mem[ptp_addr] = page_table;
+
+    for (int i = 0; i < page_count; i++) {
+        int data_page = -1;
+
+        for (int j = 0; j < PAGE_COUNT; j++) {
+            int addr = get_address(0, j);
+
+            if (mem[addr] == 0) {
+                mem[addr] = 1;
+                data_page = j;
+                break;
+            }
+        }
+
+        if (data_page == -1) {
+            printf("OOM: proc %d: data page\n", proc_num);
+            return;
+        }
+
+        int page_table_addr = get_address(page_table, i);
+        mem[page_table_addr] = data_page;
+    }
 }
 
 //
