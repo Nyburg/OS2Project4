@@ -42,6 +42,20 @@ unsigned char get_page_table(int proc_num)
 }
 
 //
+// Get the physical address for a process virtual address
+//
+int get_physical_address(int proc_num, int vaddr)
+{
+    int page_table = get_page_table(proc_num);
+    int virtual_page = vaddr >> PAGE_SHIFT;
+    int offset = vaddr & 255;
+    int page_table_addr = get_address(page_table, virtual_page);
+    int physical_page = mem[page_table_addr];
+
+    return get_address(physical_page, offset);
+}
+
+//
 // Allocate pages for a new process
 //
 // This includes the new process page table and page_count data pages.
