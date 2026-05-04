@@ -92,6 +92,31 @@ void new_process(int proc_num, int page_count)
 }
 
 //
+// Kill a process and free its pages
+//
+void kill_process(int proc_num)
+{
+    int page_table = get_page_table(proc_num);
+
+    for (int i = 0; i < PAGE_COUNT; i++) {
+        int page_table_addr = get_address(page_table, i);
+        int data_page = mem[page_table_addr];
+
+        if (data_page != 0) {
+            int free_map_addr = get_address(0, data_page);
+            mem[free_map_addr] = 0;
+            mem[page_table_addr] = 0;
+        }
+    }
+
+    int free_map_addr = get_address(0, page_table);
+    mem[free_map_addr] = 0;
+
+    int ptp_addr = get_address(0, PTP_OFFSET + proc_num);
+    mem[ptp_addr] = 0;
+}
+
+//
 // Print the free page map
 //
 // Don't modify this
@@ -156,7 +181,16 @@ int main(int argc, char *argv[])
             int proc_num = atoi(argv[++i]);
             print_page_table(proc_num);
         }
+        else if (strcmp(argv[i], "np") == 0) {
+            int proc_num = atoi(argv[++i]);
+            int page_count = atoi(argv[++i]);
 
-        // TODO: more command line arguments
+            new_process(proc_num, page_count);
+        }
+        else if (strcmp(argv[i], "kp") == 0) {
+            int proc_num = atoi(argv[++i]);
+
+            kill_process(proc_num);
+        }
     }
 }
