@@ -131,6 +131,31 @@ void kill_process(int proc_num)
 }
 
 //
+// Store a value at a process virtual address
+//
+void store_byte(int proc_num, int vaddr, int val)
+{
+    int addr = get_physical_address(proc_num, vaddr);
+
+    mem[addr] = val;
+
+    printf("Store proc %d: %d => %d, value=%d\n",
+        proc_num, vaddr, addr, val);
+}
+
+//
+// Load a value from a process virtual address
+//
+void load_byte(int proc_num, int vaddr)
+{
+    int addr = get_physical_address(proc_num, vaddr);
+    int val = mem[addr];
+
+    printf("Load proc %d: %d => %d, value=%d\n",
+        proc_num, vaddr, addr, val);
+}
+
+//
 // Print the free page map
 //
 // Don't modify this
@@ -205,6 +230,19 @@ int main(int argc, char *argv[])
             int proc_num = atoi(argv[++i]);
 
             kill_process(proc_num);
+        }
+        else if (strcmp(argv[i], "sb") == 0) {
+            int proc_num = atoi(argv[++i]);
+            int vaddr = atoi(argv[++i]);
+            int val = atoi(argv[++i]);
+
+            store_byte(proc_num, vaddr, val);
+        }
+        else if (strcmp(argv[i], "lb") == 0) {
+            int proc_num = atoi(argv[++i]);
+            int vaddr = atoi(argv[++i]);
+
+            load_byte(proc_num, vaddr);
         }
     }
 }
